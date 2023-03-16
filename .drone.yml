@@ -1,0 +1,22 @@
+kind: pipeline
+type: ssh
+name: default
+
+server:
+  host: nuc.home
+  user: marco
+  ssh_key: 
+    from_secret: ssh_key
+
+steps:
+- name: deploy
+  commands:
+  - cd /home/marco/containers/data/enphase-to-mqtt
+  - git fetch
+  - git reset --hard origin/master
+  - cd /home/marco/containers
+  - docker-compose up --build -d enphase-to-mqtt
+
+trigger:
+  branch:
+  - master

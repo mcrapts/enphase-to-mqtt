@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  enphase-to-mqtt:
+    build: .
+    image: enphase-to-mqtt
+    env_file:
+    - .env
+    restart: unless-stopped
+    container_name: enphase-to-mqtt
+  mock-server:
+    build: .
+    image: enphase-to-mqtt
+    ports: 
+      - 8000:8000
+    command: uvicorn enphase_to_mqtt.mock:app --host 0.0.0.0
+    restart: unless-stopped
+    container_name: enphase-to-mqtt-api-mock-server
