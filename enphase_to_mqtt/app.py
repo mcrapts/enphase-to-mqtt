@@ -105,7 +105,6 @@ async def retrieve_data() -> dict | None:
             logging.info("Token needs to be renewed, fetching new token")
         asyncio.create_task(retrieve_token())
     else:
-        # local_production_url = f"https://{Config.ENPHASE_HOST}/production.json"
         local_data_urls = {
             "production": Endpoints.LOCAL_DATA_URL_PRODUCTION,
             "inverters": Endpoints.LOCAL_DATA_URL_INVERTERS,
