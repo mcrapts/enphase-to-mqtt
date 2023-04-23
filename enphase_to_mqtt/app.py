@@ -20,6 +20,8 @@ class Config:
     ENPHASE_PASSWORD: str = os.getenv("ENPHASE_PASSWORD", "")
     SERIAL_NUMBER: str = os.getenv("SERIAL_NUMBER", "")
     MQTT_BROKER: str = os.getenv("MQTT_BROKER", "")
+    MQTT_USERNAME: str = os.getenv("MQTT_USERNAME", "")
+    MQTT_PASSWORD: str = os.getenv("MQTT_USERNAME", "")
     MQTT_PORT: int = int(os.getenv("MQTT_PORT", 1883))
     MQTT_TOPIC: str = os.getenv("MQTT_TOPIC", "")
     LOG_LEVEL: str = ""
@@ -43,6 +45,8 @@ logging.basicConfig(
 
 mqtt_client = mqtt.Client()
 try:
+    if Config.MQTT_USERNAME:
+        mqtt_client.username_pw_set(Config.MQTT_USERNAME, Config.MQTT_PASSWORD)
     mqtt_client.connect(Config.MQTT_BROKER, Config.MQTT_PORT, 60)
     mqtt_client.loop_start()
 except Exception as err:
