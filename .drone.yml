@@ -3,7 +3,7 @@ type: ssh
 name: default
 
 server:
-  host: nuc.home
+  host: server.home
   user: marco
   ssh_key: 
     from_secret: ssh_key
@@ -15,7 +15,7 @@ steps:
   - git fetch
   - git reset --hard origin/master
   - cd /home/marco/containers
-  - docker-compose up --build -d enphase-to-mqtt
+  - docker compose up --build -d enphase-to-mqtt
 
 trigger:
   branch:
