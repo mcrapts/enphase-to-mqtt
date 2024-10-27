@@ -20,6 +20,7 @@ def test_token_is_valid():
     assert token.is_valid == True
 
 
+@freeze_time("2024-02-01")
 def test_token_does_not_need_renewal():
     token = Token()
     token.value = FAKE_TOKEN
@@ -51,13 +52,22 @@ async def test_retrieve_token_auth_failed(monkeypatch):
 
 
 @pytest.mark.asyncio
+@freeze_time("2024-02-01")
 async def test_retrieve_data(monkeypatch):
     def mock_publish():
         return None
 
     monkeypatch.setattr(Endpoints, "LOCAL_AUTH_URL", f"{MOCK_API_BASE_URL}/local/auth_url")
-    monkeypatch.setattr(Endpoints, "LOCAL_DATA_URL_PRODUCTION", f"{MOCK_API_BASE_URL}/local/data/production")
-    monkeypatch.setattr(Endpoints, "LOCAL_DATA_URL_INVERTERS", f"{MOCK_API_BASE_URL}/local/data/inverters")
+    monkeypatch.setattr(
+        Endpoints,
+        "LOCAL_DATA_URL_PRODUCTION",
+        f"{MOCK_API_BASE_URL}/local/data/production",
+    )
+    monkeypatch.setattr(
+        Endpoints,
+        "LOCAL_DATA_URL_INVERTERS",
+        f"{MOCK_API_BASE_URL}/local/data/inverters",
+    )
     monkeypatch.setattr(token, "value", FAKE_TOKEN)
     monkeypatch.setattr(mqtt_client, "publish", mock_publish)
 

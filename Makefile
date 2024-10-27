@@ -2,7 +2,11 @@ mock-server:
 	docker-compose up -d --build mock-server
 
 dev: 
-	poetry run python -m enphase_to_mqtt.app
+	uv run python -m enphase_to_mqtt.app
+
+format:
+	uv run ruff format
+
 
 test: mock-server
-	poetry run pytest
+	uv run pytest -s

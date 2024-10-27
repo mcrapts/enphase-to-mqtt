@@ -12,6 +12,6 @@ services:
     image: enphase-to-mqtt
     ports: 
       - 8000:8000
-    command: uvicorn enphase_to_mqtt.mock:app --host 0.0.0.0
+    command: uv run uvicorn enphase_to_mqtt.mock:app --host 0.0.0.0
     restart: unless-stopped
     container_name: enphase-to-mqtt-api-mock-server

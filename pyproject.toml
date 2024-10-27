@@ -1,29 +1,16 @@
-[tool.poetry]
+[project]
 name = "enphase-to-mqtt"
 version = "0.1.0"
-description = ""
-authors = ["Marco Crapts <mcrapts@gmail.com>"]
+description = "Add your description here"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.10"
-pytest = "^7.2.2"
-python-dotenv = "^1.0.0"
-httpx = "^0.23.3"
-pyjwt = "^2.6.0"
-paho-mqtt = "^1.6.1"
-
-[tool.poetry.group.dev.dependencies]
-black = "^23.1.0"
-flake8 = "^6.0.0"
-fastapi = "^0.94.1"
-uvicorn = "^0.21.0"
-pytest-asyncio = "^0.20.3"
-freezegun = "^1.2.2"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27.2",
+    "paho-mqtt>=2.1.0",
+    "pyjwt>=2.9.0",
+    "pytest>=8.3.3",
+    "python-dotenv>=1.0.1",
+]
 
 [tool.pytest.ini_options]
 minversion = "6.0"
@@ -31,8 +18,14 @@ addopts = "-ra -v"
 log_level = "INFO"
 asyncio_mode = "strict"
 
-[tool.black]
+[tool.ruff]
 line-length = 120
 
-[tool.isort]
-profile = "black"
+[dependency-groups]
+dev = [
+    "fastapi>=0.115.3",
+    "freezegun>=1.5.1",
+    "pytest-asyncio>=0.24.0",
+    "ruff>=0.7.1",
+    "uvicorn>=0.32.0",
+]

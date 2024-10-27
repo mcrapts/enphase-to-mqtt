@@ -71,7 +71,7 @@ class Token:
         try:
             payload: dict[str, Any] = jwt.decode(self.value, options={"verify_signature": False})
             exp: datetime = datetime.fromtimestamp(int(payload["exp"]))
-            return datetime.now() > exp - timedelta(days=30)
+            return datetime.now() > (exp - timedelta(days=30))
         except Exception:
             return True
 
@@ -91,7 +91,8 @@ async def retrieve_token() -> Token | None:
                     "user[password]": Config.ENPHASE_PASSWORD,
                 },
             )
-            token_response = await client.get(Endpoints.WEB_TOKEN_URL, cookies=auth_response.cookies)
+            client.cookies = auth_response.cookies
+            token_response = await client.get(Endpoints.WEB_TOKEN_URL)
             token.value = token_response.json().get("token")
             logging.info("Token successfully retrieved")
             return token
@@ -119,9 +120,8 @@ async def retrieve_data() -> dict | None:
                 headers={"Authorization": f"Bearer {token.value}"},
             )
 
-            responses = await asyncio.gather(
-                *[client.get(url, cookies=local_auth_response.cookies) for (source, url) in local_data_urls.items()]
-            )
+            client.cookies = local_auth_response.cookies
+            responses = await asyncio.gather(*[client.get(url) for (source, url) in local_data_urls.items()])
             production = {
                 source: responses[index].json() for index, (source, url) in enumerate(local_data_urls.items())
             }
