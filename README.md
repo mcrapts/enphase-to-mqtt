@@ -9,7 +9,7 @@ The code will request a token using your Enphase credentials and use the token t
 3. Run `docker-compose up -d enphase-to-mqtt` 
 
 ## Development
-1. Make sure you have [Poetry](https://python-poetry.org/) installed
-2. Run the code locally using `make dev` or `poetry run python -m enphase_to_mqtt.app`
+1. Make sure you have [uv](https://github.com/astral-sh/uv) installed
+2. Run the code locally using `make dev` or `uv run python -m enphase_to_mqtt.app`
 3. Start the mock API server using `docker-compose up -d mock-server`
-3. Run tests using `poetry run pytest`
+3. Run tests using `uv run pytest`
