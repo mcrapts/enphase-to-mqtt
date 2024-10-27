@@ -2,13 +2,12 @@ import asyncio
 import json
 import logging
 import os
-import sys
 from datetime import datetime, timedelta
 from typing import Any, Awaitable, Callable
 
+import aiomqtt
 import httpx
 import jwt
-import paho.mqtt.client as mqtt
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -41,17 +40,6 @@ logging.basicConfig(
     datefmt="%Y-%m-%dT%H:%M:%S%z",
     level=logging.DEBUG if Config.LOG_LEVEL == "DEBUG" else logging.INFO,
 )
-
-
-mqtt_client = mqtt.Client()
-try:
-    if Config.MQTT_USERNAME:
-        mqtt_client.username_pw_set(Config.MQTT_USERNAME, Config.MQTT_PASSWORD)
-    mqtt_client.connect(Config.MQTT_BROKER, Config.MQTT_PORT, 60)
-    mqtt_client.loop_start()
-except Exception as err:
-    logging.error("Unable to connect to MQTT broker")
-    sys.exit()
 
 
 class Token:
@@ -108,39 +96,36 @@ async def retrieve_data() -> dict | None:
             logging.info("Token is invalid, fetching new token")
         else:
             logging.info("Token needs to be renewed, fetching new token")
-        asyncio.create_task(retrieve_token())
-    else:
-        local_data_urls = {
-            "production": Endpoints.LOCAL_DATA_URL_PRODUCTION,
-            "inverters": Endpoints.LOCAL_DATA_URL_INVERTERS,
-        }
-        async with httpx.AsyncClient(verify=False) as client:
-            local_auth_response = await client.get(
-                Endpoints.LOCAL_AUTH_URL,
-                headers={"Authorization": f"Bearer {token.value}"},
-            )
+        await retrieve_token()
 
-            client.cookies = local_auth_response.cookies
-            responses = await asyncio.gather(*[client.get(url) for (source, url) in local_data_urls.items()])
-            production = {
-                source: responses[index].json() for index, (source, url) in enumerate(local_data_urls.items())
-            }
-            logging.info("Enphase production data successfully retrieved")
-            await publish_output(production)
-            return production
+    local_data_urls = {
+        "production": Endpoints.LOCAL_DATA_URL_PRODUCTION,
+        "inverters": Endpoints.LOCAL_DATA_URL_INVERTERS,
+    }
+    async with httpx.AsyncClient(verify=False) as client:
+        local_auth_response = await client.get(
+            Endpoints.LOCAL_AUTH_URL,
+            headers={"Authorization": f"Bearer {token.value}"},
+        )
+
+        client.cookies = local_auth_response.cookies
+        responses = await asyncio.gather(*[client.get(url) for (source, url) in local_data_urls.items()])
+        production = {source: responses[index].json() for index, (source, url) in enumerate(local_data_urls.items())}
+        logging.info("Enphase production data successfully retrieved")
+        await publish_output(production)
+        return production
 
 
 async def publish_output(data):
     try:
-        result = mqtt_client.publish(
-            Config.MQTT_TOPIC,
-            payload=json.dumps(data),
-            retain=True,
-        )
-        if result.rc == 0:
+        async with aiomqtt.Client(
+            hostname=Config.MQTT_BROKER,
+            port=Config.MQTT_PORT,
+            username=Config.MQTT_USERNAME,
+            password=Config.MQTT_PASSWORD,
+        ) as mqtt_client:
+            await mqtt_client.publish(topic=Config.MQTT_TOPIC, payload=json.dumps(data), retain=True)
             logging.info("Data published on MQTT")
-        else:
-            logging.error(f"Data not published (return code {result.rc})")
         return data
     except Exception as err:
         logging.error(f"Unable to publish data on MQTT: {err}")

@@ -5,8 +5,8 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "aiomqtt>=2.3.0",
     "httpx>=0.27.2",
-    "paho-mqtt>=2.1.0",
     "pyjwt>=2.9.0",
     "pytest>=8.3.3",
     "python-dotenv>=1.0.1",

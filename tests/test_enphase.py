@@ -1,14 +1,9 @@
+from unittest import mock
+
 import pytest
 from freezegun import freeze_time
 
-from enphase_to_mqtt.app import (
-    Endpoints,
-    Token,
-    mqtt_client,
-    retrieve_data,
-    retrieve_token,
-    token,
-)
+from enphase_to_mqtt.app import Endpoints, Token, retrieve_data, retrieve_token, token
 from enphase_to_mqtt.mock import FAKE_TOKEN
 
 MOCK_API_BASE_URL = "http://localhost:8000"
@@ -17,21 +12,21 @@ MOCK_API_BASE_URL = "http://localhost:8000"
 def test_token_is_valid():
     token = Token()
     token.value = FAKE_TOKEN
-    assert token.is_valid == True
+    assert token.is_valid is True
 
 
 @freeze_time("2024-02-01")
 def test_token_does_not_need_renewal():
     token = Token()
     token.value = FAKE_TOKEN
-    assert token.needs_renewal == False
+    assert token.needs_renewal is False
 
 
 @freeze_time("2024-03-01")
 def test_token_needs_renewal():
     token = Token()
     token.value = FAKE_TOKEN
-    assert token.needs_renewal == True
+    assert token.needs_renewal is True
 
 
 @pytest.mark.asyncio
@@ -54,8 +49,8 @@ async def test_retrieve_token_auth_failed(monkeypatch):
 @pytest.mark.asyncio
 @freeze_time("2024-02-01")
 async def test_retrieve_data(monkeypatch):
-    def mock_publish():
-        return None
+    # def mock_publish():
+    #     return None
 
     monkeypatch.setattr(Endpoints, "LOCAL_AUTH_URL", f"{MOCK_API_BASE_URL}/local/auth_url")
     monkeypatch.setattr(
@@ -69,9 +64,15 @@ async def test_retrieve_data(monkeypatch):
         f"{MOCK_API_BASE_URL}/local/data/inverters",
     )
     monkeypatch.setattr(token, "value", FAKE_TOKEN)
-    monkeypatch.setattr(mqtt_client, "publish", mock_publish)
+
+    mock_mqtt_client_instance = mock.AsyncMock()
+    mock_mqtt_client_instance.__aenter__ = mock.AsyncMock(return_value=mock_mqtt_client_instance)
+    mock_mqtt_client_class = mock.Mock(return_value=mock_mqtt_client_instance)
+
+    monkeypatch.setattr("aiomqtt.Client", mock_mqtt_client_class)
 
     data = await retrieve_data()
+    mock_mqtt_client_instance.publish.assert_awaited()
 
     assert data == {
         "production": {

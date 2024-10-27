@@ -6,6 +6,18 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "aiomqtt"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "paho-mqtt" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/db/c9/168e78bd35b21d9bdbb26178db33a8f265e4a69bb4193e72434e7cb3d1cd/aiomqtt-2.3.0.tar.gz", hash = "sha256:312feebe20bc76dc7c20916663011f3bd37aa6f42f9f687a19a1c58308d80d47", size = 16479 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0d/5f/73aa0474a75fce798c8c45a0993720c3722688ae5bea1d0a5c4a9f97ae8e/aiomqtt-2.3.0-py3-none-any.whl", hash = "sha256:127926717bd6b012d1630f9087f24552eb9c4af58205bc2964f09d6e304f7e63", size = 15807 },
+]
+
+[[package]]
 name = "annotated-types"
 version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
@@ -62,8 +74,8 @@ name = "enphase-to-mqtt"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
+    { name = "aiomqtt" },
     { name = "httpx" },
-    { name = "paho-mqtt" },
     { name = "pyjwt" },
     { name = "pytest" },
     { name = "python-dotenv" },
@@ -80,8 +92,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "aiomqtt", specifier = ">=2.3.0" },
     { name = "httpx", specifier = ">=0.27.2" },
-    { name = "paho-mqtt", specifier = ">=2.1.0" },
     { name = "pyjwt", specifier = ">=2.9.0" },
     { name = "pytest", specifier = ">=8.3.3" },
     { name = "python-dotenv", specifier = ">=1.0.1" },

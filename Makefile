@@ -7,6 +7,5 @@ dev:
 format:
 	uv run ruff format
 
-
 test: mock-server
 	uv run pytest -s
